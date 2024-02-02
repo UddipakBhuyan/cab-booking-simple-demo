@@ -3,8 +3,10 @@ package uddipak.cabbooking.controllers;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
+import uddipak.cabbooking.dtos.DriverDto;
 import uddipak.cabbooking.models.Driver;
 import uddipak.cabbooking.repositories.DriverRepository;
+import uddipak.cabbooking.services.DriverService;
 
 import java.net.URI;
 import java.util.Optional;
@@ -12,15 +14,15 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/driver")
 class DriverController {
-    private final DriverRepository driverRepository;
+    private final DriverService driverService;
 
-    private DriverController(DriverRepository driverRepository) {
-        this.driverRepository = driverRepository;
+    private DriverController(DriverService driverService) {
+        this.driverService = driverService;
     }
 
     @PostMapping
-    private ResponseEntity<Void> createDriver(@RequestBody Driver newDriverRequest, UriComponentsBuilder ucb) {
-        Driver savedDriver = driverRepository.save(newDriverRequest);
+    private ResponseEntity<Void> createDriver(@RequestBody DriverDto newDriverRequestDto, UriComponentsBuilder ucb) {
+        Driver savedDriver = driverService.convertAndSave(newDriverRequestDto);
         URI locationOfDriver = ucb
                 .path("driver/{id}")
                 .buildAndExpand(savedDriver.id())
@@ -29,12 +31,9 @@ class DriverController {
     }
 
     @GetMapping("/{requestedId}")
-    private ResponseEntity<Driver> findById(@PathVariable Long requestedId) {
-        Optional<Driver> driver = findDriver(requestedId);
+    private ResponseEntity<DriverDto> findById(@PathVariable Long requestedId) {
+        Optional<DriverDto> driver = driverService.findDriver(requestedId);
         return driver.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
 
-    private Optional<Driver> findDriver(Long requestedId) {
-        return driverRepository.findById(requestedId);
-    }
 }

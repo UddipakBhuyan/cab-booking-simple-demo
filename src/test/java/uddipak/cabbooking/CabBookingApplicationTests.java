@@ -13,7 +13,6 @@ import uddipak.cabbooking.models.AppUser;
 import uddipak.cabbooking.models.Driver;
 
 import java.net.URI;
-import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -61,7 +60,7 @@ class CabBookingApplicationTests {
 
     @Test
     void shouldCreateADriver() {
-        Driver newDriver = new Driver(null, "Driver1", Gender.MALE, 22, "Swift, KA-01-12345", Arrays.asList(new Integer[] {10, 1}));
+        Driver newDriver = new Driver(null, "Driver1", Gender.MALE, 22, "Swift, KA-01-12345", "(10, 1)");
         ResponseEntity<Void> createResponse = restTemplate.postForEntity("/driver", newDriver, Void.class);
         assertThat(createResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
         URI locationOfNewDriver = createResponse.getHeaders().getLocation();
@@ -71,21 +70,27 @@ class CabBookingApplicationTests {
 
     @Test
     void shouldReturnDriverWhenDataIsSaved() {
-        ResponseEntity<String> response = restTemplate.getForEntity("/driver/99", String.class);
+        ResponseEntity<String> response = restTemplate.getForEntity("/driver/44", String.class);
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
 
         DocumentContext documentContext = JsonPath.parse(response.getBody());
         Number id = documentContext.read("$.id");
-        assertThat(id).isEqualTo(99);
+        assertThat(id).isEqualTo(44);
 
         String name = documentContext.read("$.name");
-        assertThat(name).isEqualTo("Kavya");
+        assertThat(name).isEqualTo("Mahesh");
 
         Integer age = documentContext.read("$.age");
-        assertThat(age).isEqualTo(44);
+        assertThat(age).isEqualTo(34);
 
         String gender = documentContext.read("$.gender");
-        assertThat(gender).isEqualTo("FEMALE");
+        assertThat(gender).isEqualTo("MALE");
+
+        String vehicleDetails = documentContext.read("$.vehicle");
+        assertThat(vehicleDetails).isEqualTo("Swift, KA-01-12345");
+
+        String location = documentContext.read("$.location");
+        assertThat(location).isEqualTo("(12, 1)");
     }
 
     @Test
