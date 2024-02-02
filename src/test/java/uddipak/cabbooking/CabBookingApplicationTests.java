@@ -9,8 +9,11 @@ import org.springframework.boot.test.web.client.TestRestTemplate;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import uddipak.cabbooking.enums.Gender;
+import uddipak.cabbooking.models.AppUser;
+import uddipak.cabbooking.models.Driver;
 
 import java.net.URI;
+import java.util.Arrays;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
@@ -51,6 +54,43 @@ class CabBookingApplicationTests {
     @Test
     void shouldNotReturnAppUserWithAnUnknownId() {
         ResponseEntity<String> response = restTemplate.getForEntity("/booking/1000", String.class);
+
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
+        assertThat(response.getBody()).isBlank();
+    }
+
+    @Test
+    void shouldCreateADriver() {
+        Driver newDriver = new Driver(null, "Driver1", Gender.MALE, 22, "Swift, KA-01-12345", Arrays.asList(new Integer[] {10, 1}));
+        ResponseEntity<Void> createResponse = restTemplate.postForEntity("/driver", newDriver, Void.class);
+        assertThat(createResponse.getStatusCode()).isEqualTo(HttpStatus.CREATED);
+        URI locationOfNewDriver = createResponse.getHeaders().getLocation();
+        ResponseEntity<String> getResponse = restTemplate.getForEntity(locationOfNewDriver, String.class);
+        assertThat(getResponse.getStatusCode()).isEqualTo(HttpStatus.OK);
+    }
+
+    @Test
+    void shouldReturnDriverWhenDataIsSaved() {
+        ResponseEntity<String> response = restTemplate.getForEntity("/driver/99", String.class);
+        assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
+
+        DocumentContext documentContext = JsonPath.parse(response.getBody());
+        Number id = documentContext.read("$.id");
+        assertThat(id).isEqualTo(99);
+
+        String name = documentContext.read("$.name");
+        assertThat(name).isEqualTo("Kavya");
+
+        Integer age = documentContext.read("$.age");
+        assertThat(age).isEqualTo(44);
+
+        String gender = documentContext.read("$.gender");
+        assertThat(gender).isEqualTo("FEMALE");
+    }
+
+    @Test
+    void shouldNotReturnDriverWithAnUnknownId() {
+        ResponseEntity<String> response = restTemplate.getForEntity("/driver/1000", String.class);
 
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.NOT_FOUND);
         assertThat(response.getBody()).isBlank();
