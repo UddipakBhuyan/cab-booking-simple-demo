@@ -8,5 +8,5 @@ import java.util.List;
 import java.util.Optional;
 
 public interface DriverRepository extends CrudRepository<Driver, Long>, PagingAndSortingRepository<Driver, Long> {
-    Optional<List<Driver>> findByNameAndLocation(String name, Integer locationX, Integer locationY);
+    Optional<List<Driver>> findByNameAndLocationXAndLocationY(String name, Integer locationX, Integer locationY);
 }

@@ -10,8 +10,14 @@ import java.util.Optional;
 
 @Service
 public class DriverService {
-    private DriverRepository driverRepository;
-    private DriverTransformer driverTransformer;
+    private final DriverRepository driverRepository;
+    private final DriverTransformer driverTransformer;
+
+    public DriverService(DriverRepository driverRepository, DriverTransformer driverTransformer) {
+        this.driverRepository = driverRepository;
+        this.driverTransformer = driverTransformer;
+    }
+
     public Driver convert(DriverDto newDriverRequestDto) {
         return driverTransformer.transform(newDriverRequestDto);
     }
@@ -24,6 +30,6 @@ public class DriverService {
     }
     public Optional<DriverDto> findDriver(Long requestedId) {
         Optional<Driver> driverDto = driverRepository.findById(requestedId);
-        return driverDto.map(driver -> driverTransformer.transform(driver));
+        return driverDto.map(driverTransformer::transform);
     }
 }

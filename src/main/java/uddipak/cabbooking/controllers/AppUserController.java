@@ -1,5 +1,7 @@
 package uddipak.cabbooking.controllers;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -17,7 +19,7 @@ import java.util.Optional;
 @RequestMapping("/booking")
 class AppUserController {
     private final AppUserServices appUserServices;
-
+    private static final Logger logger = LoggerFactory.getLogger(AppUserController.class);
     private AppUserController(AppUserServices appUserServices) {
         this.appUserServices = appUserServices;
     }
@@ -40,6 +42,8 @@ class AppUserController {
 
     @GetMapping("/findDriver/{name}/{source}/{destination}")
     private ResponseEntity<List<DriverDto>> findDriver(@PathVariable String name, @PathVariable String source, @PathVariable String destination) {
+        logger.info("here====================");
+        logger.info(name, source, destination);
         Optional<List<DriverDto>> nearestDriverList = appUserServices.findNearestDriver(name, source);
         return nearestDriverList.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
     }
