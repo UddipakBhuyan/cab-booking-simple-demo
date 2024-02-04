@@ -7,6 +7,8 @@ import uddipak.cabbooking.enums.TripStatus;
 import uddipak.cabbooking.entities.AppUser;
 import uddipak.cabbooking.entities.Driver;
 import uddipak.cabbooking.entities.Trip;
+import uddipak.cabbooking.exceptions.AppUserNotFound;
+import uddipak.cabbooking.exceptions.DriverNotFound;
 import uddipak.cabbooking.repositories.AppUserRepository;
 import uddipak.cabbooking.repositories.DriverRepository;
 import uddipak.cabbooking.repositories.TripRepository;
@@ -24,6 +26,8 @@ public class AppUserServices {
     private final DriverService driverService;
     private final AppUserTransformer appUserTransformer;
 
+    private final int MINIMUM_DISTANCE_TO_CONSIDER = 5;
+
     public AppUserServices(AppUserRepository appUserRepository, DriverRepository driverRepository, TripRepository tripRepository, DriverService driverService, AppUserTransformer appUserTransformer) {
         this.appUserRepository = appUserRepository;
         this.driverRepository = driverRepository;
@@ -32,21 +36,20 @@ public class AppUserServices {
         this.appUserTransformer = appUserTransformer;
     }
 
-    public Optional<List<DriverDto>> findNearestDriver(String username, String src) {
+    public List<DriverDto> findNearestDriver(String username, String src) {
         int[] xy = finXY(src);
         Integer srcX = xy[0], srcY = xy[1];
         AppUser existingUser = appUserRepository.findByName(username)
-                .orElseThrow(() -> new IllegalArgumentException("User not found with name:" + username));
+                .orElseThrow(() -> new AppUserNotFound("User not found with name:" + username));
 
         Iterable<Driver> driverList = driverRepository.findAllDriversWithStatusNot(TripStatus.ONGOING);
-//                findByNameAndLocationXAndLocationY(name, srcX, srcY);
-        return Optional.of(StreamSupport.stream(driverList.spliterator(), true)
+        return StreamSupport.stream(driverList.spliterator(), true).parallel()
                 .map(driver -> new AbstractMap.SimpleEntry<>(driver, calculateDistance(driver.getLocationX(), driver.getLocationY(), srcX, srcY)))
-                .filter(entry -> entry.getValue() <= 5)
+                .filter(entry -> entry.getValue() <= MINIMUM_DISTANCE_TO_CONSIDER)
                 .sorted(Comparator.comparingDouble(AbstractMap.SimpleEntry::getValue))
                 .map(AbstractMap.SimpleEntry::getKey)
                 .map(driverService::convert)
-                .collect(Collectors.toList()));
+                .collect(Collectors.toList());
     }
 
     private int[] finXY(String src) {
@@ -71,14 +74,13 @@ public class AppUserServices {
 
     public void bookDriver(String username, String driverName) {
         AppUser existingUser = appUserRepository.findByName(username)
-                .orElseThrow(() -> new IllegalArgumentException("User not found with name:" + username));
+                .orElseThrow(() -> new AppUserNotFound("User not found with name:" + username));
         Driver existingDriver = driverRepository.findByName(driverName)
-                .orElseThrow(() -> new IllegalArgumentException("Driver not found with id: " + driverName));
+                .orElseThrow(() -> new DriverNotFound("Driver not found with id: " + driverName));
 
         Trip trip = new Trip(null, existingUser, existingDriver, "some place", "some other place", TripStatus.ONGOING, null);
 
-
-        // TODO: add finally or something for exception handling
+        // TODO: add finally or something for exception handling or use @Transacitonal
         tripRepository.save(trip);
 //        appUserRepository.save(existingUser);
 //        driverRepository.save(existingDriver);

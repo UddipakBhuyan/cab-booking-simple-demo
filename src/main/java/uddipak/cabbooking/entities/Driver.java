@@ -29,7 +29,7 @@ public class Driver {
     Integer age;
     @Column(nullable = false)
     String vehicle;
-    //vehicle can be separate entiyty?
+    //vehicle can be separate entity?
     Integer locationX;
     Integer locationY;
     @CreationTimestamp
@@ -37,4 +37,6 @@ public class Driver {
     LocalDateTime localDateTime;
     @OneToMany(mappedBy = "driver")
     List<Trip> trips;
+//    @Version
+//    private Integer version;
 }

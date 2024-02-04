@@ -2,6 +2,7 @@ package uddipak.cabbooking.controllers;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
@@ -17,8 +18,8 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/booking")
 class AppUserController {
-    private final AppUserServices appUserServices;
     private static final Logger logger = LoggerFactory.getLogger(AppUserController.class);
+    private final AppUserServices appUserServices;
 
     private AppUserController(AppUserServices appUserServices) {
         this.appUserServices = appUserServices;
@@ -41,9 +42,12 @@ class AppUserController {
     }
 
     @GetMapping("/findDriver/{name}/{source}/{destination}")
-    private ResponseEntity<List<DriverDto>> findDriver(@PathVariable String name, @PathVariable String source, @PathVariable String destination) {
-        Optional<List<DriverDto>> nearestDriverList = appUserServices.findNearestDriver(name, source);
-        return nearestDriverList.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    private ResponseEntity<?> findDriver(@PathVariable String name, @PathVariable String source, @PathVariable String destination) {
+        List<DriverDto> nearestDriverList = appUserServices.findNearestDriver(name, source);
+        if (nearestDriverList.isEmpty()) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body("No drivers near you");
+        }
+        return ResponseEntity.ok(nearestDriverList);
     }
 
     @GetMapping("/bookDriver/{username}/{driverName}")
@@ -51,7 +55,7 @@ class AppUserController {
         try {
             appUserServices.bookDriver(username, driverName);
             return ResponseEntity.ok("Trip Booked");
-        }catch (RuntimeException e) {
+        } catch (RuntimeException e) {
             return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
