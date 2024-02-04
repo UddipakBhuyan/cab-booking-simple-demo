@@ -2,7 +2,7 @@ package uddipak.cabbooking.services;
 
 import org.springframework.stereotype.Service;
 import uddipak.cabbooking.dtos.DriverDto;
-import uddipak.cabbooking.models.Driver;
+import uddipak.cabbooking.entities.Driver;
 import uddipak.cabbooking.repositories.DriverRepository;
 import uddipak.cabbooking.transformers.DriverTransformer;
 
@@ -21,6 +21,7 @@ public class DriverService {
     public Driver convert(DriverDto newDriverRequestDto) {
         return driverTransformer.transform(newDriverRequestDto);
     }
+
     public DriverDto convert(Driver newDriverRequestDto) {
         return driverTransformer.transform(newDriverRequestDto);
     }
@@ -28,6 +29,7 @@ public class DriverService {
     public Driver convertAndSave(DriverDto newDriverRequestDto) {
         return driverRepository.save(driverTransformer.transform(newDriverRequestDto));
     }
+
     public Optional<DriverDto> findDriver(Long requestedId) {
         Optional<Driver> driverDto = driverRepository.findById(requestedId);
         return driverDto.map(driverTransformer::transform);

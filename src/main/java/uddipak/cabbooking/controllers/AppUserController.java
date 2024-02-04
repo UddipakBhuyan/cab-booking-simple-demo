@@ -7,8 +7,7 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 import uddipak.cabbooking.dtos.AppUserDto;
 import uddipak.cabbooking.dtos.DriverDto;
-import uddipak.cabbooking.models.AppUser;
-import uddipak.cabbooking.repositories.AppUserRepository;
+import uddipak.cabbooking.entities.AppUser;
 import uddipak.cabbooking.services.AppUserServices;
 
 import java.net.URI;
@@ -20,6 +19,7 @@ import java.util.Optional;
 class AppUserController {
     private final AppUserServices appUserServices;
     private static final Logger logger = LoggerFactory.getLogger(AppUserController.class);
+
     private AppUserController(AppUserServices appUserServices) {
         this.appUserServices = appUserServices;
     }
@@ -29,7 +29,7 @@ class AppUserController {
         AppUser savedAppUser = appUserServices.convertAndSave(newAppUserDtoRequest);
         URI locationOfNewUser = ucb
                 .path("booking/{id}")
-                .buildAndExpand(savedAppUser.id())
+                .buildAndExpand(savedAppUser.getId())
                 .toUri();
         return ResponseEntity.created(locationOfNewUser).build();
     }
@@ -42,9 +42,17 @@ class AppUserController {
 
     @GetMapping("/findDriver/{name}/{source}/{destination}")
     private ResponseEntity<List<DriverDto>> findDriver(@PathVariable String name, @PathVariable String source, @PathVariable String destination) {
-        logger.info("here====================");
-        logger.info(name, source, destination);
         Optional<List<DriverDto>> nearestDriverList = appUserServices.findNearestDriver(name, source);
         return nearestDriverList.map(ResponseEntity::ok).orElseGet(() -> ResponseEntity.notFound().build());
+    }
+
+    @GetMapping("/bookDriver/{username}/{driverName}")
+    private ResponseEntity<String> bookDriver(@PathVariable String username, @PathVariable String driverName) {
+        try {
+            appUserServices.bookDriver(username, driverName);
+            return ResponseEntity.ok("Trip Booked");
+        }catch (RuntimeException e) {
+            return ResponseEntity.internalServerError().body(e.getMessage());
+        }
     }
 }

@@ -24,6 +24,7 @@ class CabBookingApplicationTests {
     TestRestTemplate restTemplate;
 
     private static final Logger logger = LoggerFactory.getLogger(CabBookingApplicationTests.class);
+
     @Test
     void shouldCreateANewAppUser() {
         AppUserDto newAppUser = new AppUserDto(null, "Abhishek", Gender.MALE, 23);
@@ -111,4 +112,5 @@ class CabBookingApplicationTests {
         assertThat(response.getStatusCode()).isEqualTo(HttpStatus.OK);
         logger.info(response::getBody);
     }
+    //TODO: not all test cases covered
 }

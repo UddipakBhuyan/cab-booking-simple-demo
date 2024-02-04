@@ -4,8 +4,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 import org.springframework.web.util.UriComponentsBuilder;
 import uddipak.cabbooking.dtos.DriverDto;
-import uddipak.cabbooking.models.Driver;
-import uddipak.cabbooking.repositories.DriverRepository;
+import uddipak.cabbooking.entities.Driver;
 import uddipak.cabbooking.services.DriverService;
 
 import java.net.URI;
@@ -25,7 +24,7 @@ class DriverController {
         Driver savedDriver = driverService.convertAndSave(newDriverRequestDto);
         URI locationOfDriver = ucb
                 .path("driver/{id}")
-                .buildAndExpand(savedDriver.id())
+                .buildAndExpand(savedDriver.getId())
                 .toUri();
         return ResponseEntity.created(locationOfDriver).build();
     }
