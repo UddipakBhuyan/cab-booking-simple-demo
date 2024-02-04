@@ -1,0 +1,53 @@
+curl -v -XPOST -H "Content-type: application/json" -d '{
+  "name": "Ahbishek",
+  "gender": "MALE",
+  "age": 23
+}' 'http://localhost:8080/booking'
+
+curl -v -XPOST -H "Content-type: application/json" -d '{
+  "name": "Rahul",
+  "gender": "MALE",
+  "age": 29
+}' 'http://localhost:8080/booking'
+
+
+curl -v -XPOST -H "Content-type: application/json" -d '{
+  "name": "Nandini",
+  "gender": "FEMALE",
+  "age": 22
+}' 'http://localhost:8080/booking'
+
+curl -v -XPOST -H "Content-type: application/json" -d '{
+    "name": "Driver1",
+      "gender": "MALE",
+        "age": 22,
+          "vehicle": "Swift, KA-01-12345",
+            "location": "(10,1)"
+}' 'http://localhost:8080/driver'
+
+curl -v -XPOST -H "Content-type: application/json" -d '{
+    "name": "Driver2",
+      "gender": "MALE",
+        "age": 29,
+          "vehicle": "Swift, KA-01-12345",
+            "location": "(11,10)"
+}' 'http://localhost:8080/driver'
+
+curl -v -XPOST -H "Content-type: application/json" -d '{
+    "name": "Driver3",
+      "gender": "MALE",
+        "age": 24,
+          "vehicle": "Swift, KA-01-12345",
+            "location": "(5,3)"
+}' 'http://localhost:8080/driver'
+
+curl -v -XGET 'http://localhost:8080/booking/findDriver/Ahbishek/(0,0)/(20,1)'
+
+curl -v -XGET 'http://localhost:8080/booking/findDriver/Rahul/(10,0)/(15,3)'
+
+curl -v -XGET 'http://localhost:8080/booking/bookDriver/Rahul/Driver1'
+
+curl -v -XGET 'http://localhost:8080/booking/findDriver/Nandini/(15,6)/(20,4)'
+
+curl -v -XGET 'http://localhost:8080/booking/findDriver/Nandini/(10,6)/(20,4)'
+
