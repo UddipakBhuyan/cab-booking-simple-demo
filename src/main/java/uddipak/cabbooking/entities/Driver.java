@@ -1,5 +1,6 @@
 package uddipak.cabbooking.entities;
 
+import jakarta.annotation.Nullable;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -37,6 +38,8 @@ public class Driver {
     LocalDateTime localDateTime;
     @OneToMany(mappedBy = "driver")
     List<Trip> trips;
-//    @Version
-//    private Integer version;
+    @Version
+    Integer version;
+    @Column(nullable = false, columnDefinition = "BOOLEAN default true")
+    Boolean available;
 }

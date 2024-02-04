@@ -10,7 +10,7 @@ import java.util.Arrays;
 public class DriverTransformer {
     public Driver transform(DriverDto newDriverRequestDto) {
         int[] xy = finXY(newDriverRequestDto.location());
-        return new Driver(newDriverRequestDto.id(), newDriverRequestDto.name(), newDriverRequestDto.gender(), newDriverRequestDto.age(), newDriverRequestDto.vehicle(), xy[0], xy[1], null, null);
+        return new Driver(newDriverRequestDto.id(), newDriverRequestDto.name(), newDriverRequestDto.gender(), newDriverRequestDto.age(), newDriverRequestDto.vehicle(), xy[0], xy[1], null, null, null, true);
     }
 
     public DriverDto transform(Driver driver) {

@@ -14,6 +14,7 @@ public interface DriverRepository extends CrudRepository<Driver, Long>, PagingAn
 
     Optional<Driver> findByName(String driverName);
 
-    @Query("SELECT d from Driver d LEFT JOIN FETCH d.trips t where t.tripStatus is null or t.tripStatus <> :status")
-    Iterable<Driver> findAllDriversWithStatusNot(TripStatus status);
+//    @Query("SELECT d from Driver d LEFT JOIN FETCH d.trips t where t.tripStatus is null or t.tripStatus <> :status")
+//    Iterable<Driver> findAllDriversWithStatusNot(TripStatus status);
+    Iterable<Driver> findAllByAvailable(Boolean available);
 }

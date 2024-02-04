@@ -1,5 +1,6 @@
 package uddipak.cabbooking.services;
 
+import jakarta.persistence.OptimisticLockException;
 import org.springframework.stereotype.Service;
 import uddipak.cabbooking.dtos.AppUserDto;
 import uddipak.cabbooking.dtos.DriverDto;
@@ -42,7 +43,7 @@ public class AppUserServices {
         AppUser existingUser = appUserRepository.findByName(username)
                 .orElseThrow(() -> new AppUserNotFound("User not found with name:" + username));
 
-        Iterable<Driver> driverList = driverRepository.findAllDriversWithStatusNot(TripStatus.ONGOING);
+        Iterable<Driver> driverList = driverRepository.findAllByAvailable(true);
         return StreamSupport.stream(driverList.spliterator(), true).parallel()
                 .map(driver -> new AbstractMap.SimpleEntry<>(driver, calculateDistance(driver.getLocationX(), driver.getLocationY(), srcX, srcY)))
                 .filter(entry -> entry.getValue() <= MINIMUM_DISTANCE_TO_CONSIDER)
@@ -74,15 +75,20 @@ public class AppUserServices {
 
     public void bookDriver(String username, String driverName) {
         AppUser existingUser = appUserRepository.findByName(username)
-                .orElseThrow(() -> new AppUserNotFound("User not found with name:" + username));
+                .orElseThrow(() -> new AppUserNotFound("User not found with name: " + username));
         Driver existingDriver = driverRepository.findByName(driverName)
                 .orElseThrow(() -> new DriverNotFound("Driver not found with id: " + driverName));
 
+        existingDriver.setAvailable(false);
         Trip trip = new Trip(null, existingUser, existingDriver, "some place", "some other place", TripStatus.ONGOING, null);
 
         // TODO: add finally or something for exception handling or use @Transacitonal
-        tripRepository.save(trip);
+        try {
+            driverRepository.save(existingDriver);
+            tripRepository.save(trip);
 //        appUserRepository.save(existingUser);
-//        driverRepository.save(existingDriver);
+        } catch(OptimisticLockException e) {
+            throw new DriverNotFound("Driver currently unavailable. Select another one");
+        }
     }
 }
